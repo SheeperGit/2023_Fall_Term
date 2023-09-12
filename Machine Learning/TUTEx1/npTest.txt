@@ -1,0 +1,14 @@
+import numpy as np
+
+# In-Class Exercise 1 #
+a = np.ones((3, 3))
+b = np.concatenate((a, 2*a, 3*a), axis=1)
+
+# In-Class Exercise 2 #
+def generate(n):
+    a = np.ones((n, n))
+    b = np.identity(n)
+    result = a - b
+    return result
+
+generate(3)
