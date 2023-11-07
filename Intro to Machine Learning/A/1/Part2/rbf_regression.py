@@ -24,7 +24,7 @@ class RBFRegression():
         self.K = centers.shape[0]
 
         # Remember that we have K weights and 1 bias.
-        self.parameters = np.ones((self.K + 1, 1), dtype=np.float)
+        self.parameters = np.ones((self.K + 1, 1), dtype=np.float64)
 
     def _rbf_2d(self, X, rbf_i):
         """ This private method computes the output of the i'th 2D radial basis function given the inputs.
@@ -73,6 +73,22 @@ class RBFRegression():
 
         # ====================================================
         # TODO: Implement your solution within the box
+
+        # Initialize predictions w/ zeros #
+        predictions = np.zeros((X.shape[0], 1))
+
+        # Iterate through all radial basis functions and accumulate their contributions
+        for rbf_i in range(self.K):
+            # Compute rbf_i, for all X #
+            rbf_output = self._rbf_2d(X, rbf_i)
+            
+            # Accumulate rbf_i's contributions in predictions #
+            predictions += self.parameters[rbf_i + 1] * rbf_output
+
+        # Don't forget to add the bias (b)! #
+        predictions += self.parameters[0]
+
+        return predictions
         
         # ====================================================
     
@@ -98,6 +114,24 @@ class RBFRegression():
 
         # ====================================================
         # TODO: Implement your solution within the box
+
+        N = train_X.shape[0]
+    
+        # The rbf_matrix will have all the RBFs of all our dps #
+        rbf_matrix = np.zeros((N, self.K))
+        for rbf_i in range(self.K):
+            # Flatten := Convert to 1d array #
+            rbf_matrix[:, rbf_i] = self._rbf_2d(train_X, rbf_i).flatten()
+
+        # Add a column of ones for the bias term
+        rbf_matrix = np.column_stack((np.ones((N, 1)), rbf_matrix))
+
+        # CGathering all the optimal params... #
+        XTX = np.dot(rbf_matrix.T, rbf_matrix)
+        XY = np.dot(rbf_matrix.T, train_Y)
+        reg = l2_coef * np.identity(self.K + 1)
+        inv = np.linalg.inv(XTX + reg)
+        self.parameters = np.dot(inv, XY)
         
         # ====================================================
 
