@@ -42,11 +42,11 @@ def RBF_image_inpainting(image_name, fill_rgb, spacing, width, l2_coef, patch_si
     PATCH_SIZE = patch_size
     TOL = tolerance
     
-    fill_rgb = fill_rgb.astype(np.float) / 255
+    fill_rgb = fill_rgb.astype(np.float64) / 255
 
     # Read Images 
     im = mpimg.imread(image_name)
-    im = im.astype(np.float) / 255
+    im = im.astype(np.float64) / 255
     im_rec = im
     
     # Iterate through image patches
@@ -60,9 +60,9 @@ def RBF_image_inpainting(image_name, fill_rgb, spacing, width, l2_coef, patch_si
 
             # Construct the centers and the widths of RBFs
             # NOTE: We assume all centers are spreadout evenly and all widths to be the same
-            centers = np.array((XX.flatten(), YY.flatten()), dtype=np.float).T
+            centers = np.array((XX.flatten(), YY.flatten()), dtype=np.float64).T
             num_centers = centers.shape[0]
-            widths = np.ones(shape=(num_centers, 1), dtype=np.float) * width
+            widths = np.ones(shape=(num_centers, 1), dtype=np.float64) * width
 
             # Construct one model for each colour channel
             # Training is done below.
