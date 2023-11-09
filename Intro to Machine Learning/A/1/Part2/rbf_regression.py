@@ -126,7 +126,7 @@ class RBFRegression():
         # Add a column of ones for the bias term
         rbf_matrix = np.column_stack((np.ones((N, 1)), rbf_matrix))
 
-        # CGathering all the optimal params... #
+        # Gathering all the optimal params... #
         XTX = np.dot(rbf_matrix.T, rbf_matrix)
         XY = np.dot(rbf_matrix.T, train_Y)
         reg = l2_coef * np.identity(self.K + 1)

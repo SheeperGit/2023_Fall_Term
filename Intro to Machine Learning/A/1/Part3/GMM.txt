@@ -1,0 +1,58 @@
+Name: Sean Shekhtman
+Student ID: 1008305371
+
+CSCC11 A1 Part 1, 3 Questions & Answers:
+
+1a) Express the corresponding optimization problem in matrix-vector form and make sure that all the involved entities are well-defined, along with their dimensions.
+
+Ans) The optimization problem is that we wish to minimize the sum of squared errors for linear reg.
+We define N, D to be the number of datapoints and the number of features (+ the folded bias term), respectively.
+
+This means:
+X is (N, D)
+Y is (N, 1)
+W is (D, 1)
+Y_pred is (N, 1)
+
+Optimization Problem)
+Model: Minimize -> np.sum(np.square(Y - Y_pred))
+Constraints: None.
+
+
+3a) Test your implementation with different values of num_clusters and briefly explain the impact of increasing the number of clusters.
+
+Ans) By increasing the number of clusters, we group a larger collection of similar pixels. This lowers the impact of the compression ratio (the ratio is typically higher for smaller values of k) as well as increases computation time needed to compress the image. The benefit in higher amounts of clusters is higher quality retention of the image, as fewer clusters can group less pixels.
+
+3b) How would you use a Gaussian Mixture Model to perform the compression? Note that you are not required to provide any code for this part – just make sure to explain all the steps indetail, along with the equations to be used for the computations. All the involved entities and theirdimensions should be well-defined.
+
+Ans) As before the img will be represented in a 2D array, holding RGB values of individual pixels. If the original img is NxN, then so too will the array be NxN. The most important difference in using GMMs compared to K-Means, is the amount of GMMs to use (as opposed to how many clusters) as a hyperparam. Note that if `k` represents the number of GMMs used in compression, then the same result holds as in (a) (See above).
+
+We define K, D to be the number of GMMs, and the number of features, respectively.
+This means:
+m_i is (K, 1)
+mu_j is (K, 1)
+sigma_i is (D, D)
+
+
+
+We may initialize the model with random means, covariances, and prior probabilities (or through some other educated method.)
+Next, we use the Expectation-Maximization algorithm (EM), to iteratively refine our initial GMM params to better fit the data.
+Expectation Step: We compute the gamma function for each datapoint, given by:
+
+	numerator = mi_k * np.exp(-0.5 * np.dot(np.dot((x - mu_k), np.linalg.inv(sigma_k)), (x - mu_k)))
+	denominator = np.sum(mi_j * np.exp(-0.5 * np.sum(np.multiply(np.dot(x - mu_j, np.linalg.inv(sigma_j)), x - mu_j)) for mi_j, mu_j, sigma_j in zip(mis, mus, sigmas))
+
+	gamma_ik = numerator / denominator
+
+	where gamma_ik represents the probability that a datapoint belongs to the k-th component.
+
+Note: `zip` is a function that was used here to share array indexes.
+
+
+Maximization Step: Now, we update the model params using our previous gained responsibilities, where the prior probabilities are obtained by averaging the responsibilities over all data points, the means are obtained by computing a weighted average of the data points (where weights are the gammas), and the covariance matrices are obtained by computing a weighted covariance of the data points (where weights are once again the gammas.)
+
+We repeat EM until convergence (values aren't changing significantly based on some tolerance) or the max_iters was reached.
+We assign each x_i to it's closest gamma to cluster the pixels. It is through this step that we assign clusters to each pixel.
+
+And... that's it!
+Overall, pretty similar to K-Means Clustering.
